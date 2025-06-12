@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SINTRA | Official Page</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f7fa;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+    }
+
+    h1 {
+      color: #2c3e50;
+      font-size: 36px;
+      margin-bottom: 10px;
+    }
+
+    p.description {
+      font-size: 18px;
+      color: #555;
+      margin-bottom: 40px;
+    }
+
+    .button-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .btn {
+      padding: 15px 30px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: #007BFF;
+      color: white;
+      transition: background-color 0.3s ease;
+      width: 280px;
+    }
+
+    .btn:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Welcome to SINTRA</h1>
+  <p class="description">Please choose one of the actions below to proceed.</p>
+
+  <div class="button-container">
+    <button class="btn" onclick="sendWebhook('junk')">Junk</button>
+    <button class="btn" onclick="redirectToInfo()">Need More Information</button>
+    <button class="btn" onclick="sendWebhook('quote')">Ready to Quote</button>
+  </div>
+
+  <script>
+    // Read query parameters from URL
+    const params = new URLSearchParams(window.location.search);
+    const data = {
+      Lead_Status: params.get("Lead_Status") || "",
+      Lead_ID: params.get("Lead_ID") || "",
+      Owner: params.get("Owner") || "",
+      Contact_Name: params.get("Full_Name") || "",
+      Contact_Email: params.get("Email") || "",
+      Source: params.get("Lead_Source") || ""
+    };
+
+    function sendWebhook(actionType) {
+      let url = "";
+
+      if (actionType === "junk") {
+        url = "https://flow.zoho.com/865129498/flow/webhook/incoming?zapikey=1001.f64f23d55dd899d6832eb7f27b776721.6fec0d16c48b770865031c4755a8dc08&isdebug=false";
+      } else if (actionType === "quote") {
+        url = "https://flow.zoho.com/865129498/flow/webhook/incoming?zapikey=1001.47f30772537aaaf221dd0528d2aa1ac7.643656db5880b0cf1931639d593e9c4d&isdebug=false";
+      }
+
+      const payload = new URLSearchParams({
+        Lead_Status: data.Lead_Status,
+        Lead_ID: data.Lead_ID,
+        Owner: data.Owner,
+        Contact_Name: data.Contact_Name,
+        Contact_Email: data.Contact_Email,
+        Source: data.Source,
+        Action: actionType
+      });
+
+      fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: payload.toString()
+      }).catch(() => {
+        // Silent fail
+      });
+    }
+
+    function redirectToInfo() {
+      // Open Zoho CRM deal page with Lead_ID in a new tab
+      const dealUrl = "https://crm.zoho.com/crm/org681243042/tab/Potentials/" + data.Lead_ID;
+      window.open(dealUrl, "_blank");
+    }
+  </script>
+
+</body>
+</html>
